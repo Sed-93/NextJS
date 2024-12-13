@@ -1,0 +1,47 @@
+#!/bin/bash
+# Bash Script installation Coolify och PostgreSQL
+
+set -e
+
+### Variables ###
+COOLIFY_DIR="/data/coolify"
+POSTGRES_PASSWORD="######"  
+POSTGRES_USER="#####"  
+DATABASE_NAME="###" 
+
+# Docker Installation
+install_docker() {
+  echo "Installing Docker and Docker Compose..."
+  sudo apt update
+  sudo apt install -y docker.io docker-compose
+  sudo systemctl enable docker
+  sudo systemctl start docker
+}
+
+# Coolify Installation 
+install_coolify() {
+  echo "Installing Coolify..."
+  mkdir -p $COOLIFY_DIR
+  cd $COOLIFY_DIR
+  curl -L https://get.coollabs.io/coolify-v4.sh | bash
+}
+
+# PostgreSQL Database med Docker
+setup_postgresql() {
+  echo "Setting up PostgreSQL database..."
+  docker run -d \
+    --name postgres \
+    -e POSTGRES_USER=$POSTGRES_USER \
+    -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+    -e POSTGRES_DB=$DATABASE_NAME \
+    -p 5432:5432 \
+    --restart always \
+    postgres:15
+}
+
+### Main Execution ###
+install_docker
+install_coolify
+setup_postgresql
+
+echo "Coolify and PostgreSQL setup complete with specified configurations."
